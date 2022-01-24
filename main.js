@@ -84,4 +84,3 @@ const idInvalidCardCompanies=(nestArr)=>{
     return companies;
 };
     
-console.log(idInvalidCardCompanies(batch));
