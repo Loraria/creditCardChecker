@@ -24,40 +24,40 @@ const batch = [valid1, valid2, valid3, valid4, valid5, invalid1, invalid2, inval
 
 
 // Add your functions below:
-const validateCred=(array)=>{
-    let luhnArray=[];
-    for (let i=array.length-1; i>=0; i--){
-     let arrDigit = array[i];
-     let otherDigit = 0;
-       if(i%2!==0){
-           luhnArray.unshift(arrDigit);
-       }else{
-           otherDigit = arrDigit*2;
-           if(otherDigit>9){
-               otherDigit -= 9;
-           };
-           luhnArray.unshift(otherDigit);
-       };
-     
-    };
-   const reducer = (previousValue, currentValue)=>{return previousValue + currentValue};
-   const sum = luhnArray.reduce(reducer);
-   const validity = sum%10===0;
-     return validity;
+
+//luhnify any array
+const luhnifyNumber = cardNum => {
+    let numSum = 0;
+    for(let i = cardNum.length-1; i>=0; i--){
+        let currentNum = cardNum[i];
+
+        //card length minus i in oder to count card numbers from 0
+        if((cardNum.length -1 -i)%2===1){
+            currentNum *= 2;
+            if(currentNum >9){
+                currentNum -= 9;
+            }
+        }
+        numSum += currentNum;
+    }
+    return numSum;
+}
+
+//validate card
+const validateCred=credNum=>{
+   return luhnifyNumber(credNum)%10 === 0;
 };
 
-const findInvalidCards=(nestArr)=>{
+//find invalid cards in an array
+const findInvalidCards=credArray=>{
   let invalidCards = [];
   for (let i=0; i<=nestArr.length-1;i++){
-    let cardNumber = nestArr[i];
-    if(validateCred(cardNumber)===true){
-        continue;
-    } else {
-        invalidCards.push(cardNumber);
-    };
+   if(!validateCred(credArray[i]))
+    invalidCards.push(credArray[i]);
   };
   return invalidCards;
 };
+//console.log(findInvalidCards(batch));
 
 const idInvalidCardCompanies=(nestArr)=>{
     let companies = [];
@@ -83,5 +83,34 @@ const idInvalidCardCompanies=(nestArr)=>{
     };
     return companies;
 };
-    
-console.log(idInvalidCardCompanies(batch));
+//console.log(idInvalidCardCompanies(batch));
+
+//create a function that accepts a string and converts it into an array of numbers like the initially provided arrays. (Check the hint for a helpful function)
+const arrayNumbers = credString => {
+ let numberArray = [];
+ let strNumbers = credString.split('');
+ for (let i=0; i < strNumbers.length; i++){
+    numberArray.push(parseInt(strNumbers[i]));
+ }
+ return numberArray;
+};
+
+//turns invalid card number into valid card number, keeping first digit
+const fixInvalidCard = invalidCard => {
+  let newCard = invalidCard;
+  newCard.pop();
+
+  //check if 0 as last digit makes it valid
+  newCard.push(0);
+  let lastDigit = luhnifyNumber(newCard);
+  if(lastDigit % 10 === 0){
+    return newCard;
+  } else {
+    newCard.pop();
+    lastDigit = 10 - (lastDigit % 10);
+    newCard.push(lastDigit);
+    return newCard;
+  }
+};
+
+
